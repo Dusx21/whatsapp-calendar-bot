@@ -19,15 +19,16 @@ const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON),
   scopes: ["https://www.googleapis.com/auth/calendar"],
 });
+const calendar = google.calendar({ version: "v3", auth });
 
-// === WEBHOOK ===
+// === WEBHOOK (Verificación con Meta) ===
 app.get("/webhook", (req, res) => {
   try {
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
     const challenge = req.query["hub.challenge"];
 
-    if (mode && token === process.env.VERIFY_TOKEN) {
+    if (mode && token === VERIFY_TOKEN) {
       console.log("✅ Webhook verificado correctamente por Meta");
       return res.status(200).send(challenge);
     } else {
