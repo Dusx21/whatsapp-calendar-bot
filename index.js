@@ -9,10 +9,10 @@ const app = express();
 app.use(bodyParser.json());
 
 // ===== CONFIG =====
-const VERIFY_TOKEN = "duzian123";
-const WHATSAPP_TOKEN = "EAASyZBmsj4ogBPxvMaPIrMmw5yHYTEMN81XPI7hlDu0BHvMgH4EIHF6vcZCKuaVJ1PRIAVwnVojDG4ZAaW3eJ7lkec9zNVuqrmnZBW7ZAuXvQ1ZAqbRkIwHhKBJmPwrCkOsMWGiRRpZCkeuQdnoUWZCBWBr8OKBmDJNe2hYIZBEdUwBvOx9biJZBxGpztKjVxy4AZDZD";
-const PHONE_NUMBER_ID = "832064669982449";
-const CALENDAR_ID = "vestidoscuscopera@gmail.com";
+const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
+const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
+const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
+const CALENDAR_ID = process.env.CALENDAR_ID;
 
 // === Google Auth ===
 const auth = new google.auth.GoogleAuth({
@@ -330,7 +330,7 @@ cron.schedule("*/5 * * * *", async () => {
 });
 
 // === RESUMEN DIARIO AUTOMÁTICO (07:00 a. m. hora Perú) ===
-cron.schedule("*/1 * * * *", async () => {
+cron.schedule("0 7 * * *", async () => {
   try {
     const now = new Date();
     const start = new Date(now);
