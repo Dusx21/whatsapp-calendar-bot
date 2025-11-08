@@ -16,19 +16,30 @@ const CALENDAR_ID = process.env.CALENDAR_ID;
 
 // === Google Auth ===
 const auth = new google.auth.GoogleAuth({
-  keyFile: "credentials.json",
+  credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON),
   scopes: ["https://www.googleapis.com/auth/calendar"],
 });
-const calendar = google.calendar({ version: "v3", auth });
 
 // === WEBHOOK ===
 app.get("/webhook", (req, res) => {
-  const mode = req.query["hub.mode"];
-  const token = req.query["hub.verify_token"];
-  const challenge = req.query["hub.challenge"];
-  if (mode && token === VERIFY_TOKEN) return res.status(200).send(challenge);
-  return res.sendStatus(403);
+  try {
+    const mode = req.query["hub.mode"];
+    const token = req.query["hub.verify_token"];
+    const challenge = req.query["hub.challenge"];
+
+    if (mode && token === process.env.VERIFY_TOKEN) {
+      console.log("✅ Webhook verificado correctamente por Meta");
+      return res.status(200).send(challenge);
+    } else {
+      console.warn("❌ Error: token de verificación incorrecto");
+      return res.sendStatus(403);
+    }
+  } catch (error) {
+    console.error("❌ Error al procesar la verificación:", error.message);
+    return res.sendStatus(500);
+  }
 });
+
 
 // === NORMALIZAR TEXTO ===
 function normalizeText(text) {
