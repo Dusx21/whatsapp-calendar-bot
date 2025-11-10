@@ -14,12 +14,25 @@ const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const CALENDAR_ID = process.env.CALENDAR_ID;
 
-// === Google Auth ===
-const auth = new google.auth.GoogleAuth({
-  credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON),
-  scopes: ["https://www.googleapis.com/auth/calendar"],
-});
-const calendar = google.calendar({ version: "v3", auth });
+// === GOOGLE AUTH (corrección clave privada en Render) ===
+let googleCredentials = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+
+try {
+  // Corrige los saltos de línea si Render los dañó
+  googleCredentials = googleCredentials.replace(/\\n/g, "\n");
+
+  const parsedCredentials = JSON.parse(googleCredentials);
+
+  const auth = new google.auth.GoogleAuth({
+    credentials: parsedCredentials,
+    scopes: ["https://www.googleapis.com/auth/calendar"],
+  });
+
+  global.calendar = google.calendar({ version: "v3", auth });
+  console.log("✅ Credenciales de Google cargadas correctamente");
+} catch (err) {
+  console.error("❌ Error al procesar credenciales de Google:", err.message);
+}
 
 // === WEBHOOK (Verificación con Meta) ===
 app.get(["/webhook", "/webhook/"], (req, res) => {
