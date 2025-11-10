@@ -15,7 +15,7 @@ const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const CALENDAR_ID = process.env.CALENDAR_ID;
 
 // === GOOGLE AUTH (corrección clave privada en Render) ===
-let calendar; // 👈 ahora lo declaramos global
+let calendar = null; // 👈 ahora lo declaramos global
 
 try {
   let googleCredentials = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
