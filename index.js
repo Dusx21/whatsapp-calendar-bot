@@ -22,13 +22,13 @@ const auth = new google.auth.GoogleAuth({
 const calendar = google.calendar({ version: "v3", auth });
 
 // === WEBHOOK (Verificación con Meta) ===
-app.get("/webhook", (req, res) => {
+app.get(["/webhook", "/webhook/"], (req, res) => {
   try {
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
     const challenge = req.query["hub.challenge"];
 
-    if (mode && token === VERIFY_TOKEN) {
+    if (mode === "subscribe" && token === VERIFY_TOKEN) {
       console.log("✅ Webhook verificado correctamente por Meta");
       return res.status(200).send(challenge);
     } else {
@@ -40,7 +40,6 @@ app.get("/webhook", (req, res) => {
     return res.sendStatus(500);
   }
 });
-
 
 // === NORMALIZAR TEXTO ===
 function normalizeText(text) {
@@ -302,24 +301,12 @@ async function sendMessage(to, body) {
   }
 }
 
-// === RUTA RAÍZ (para comprobar que Render está activo) ===
+// === RUTA RAÍZ (para comprobar Render) ===
 app.get("/", (req, res) => {
   res.status(200).send("🚀 Servidor activo. Webhook WhatsApp Calendar Bot listo ✅");
 });
 
-// === INICIAR SERVIDOR ===
-//const PORT = process.env.PORT || 10000;
-// Debug temporal
-//app.get("*", (req, res) => {
-  //console.log("⚠️ Ruta no encontrada:", req.url);
-  //res.status(404).send("Ruta no encontrada: " + req.url);
-//});
-// === RUTA RAÍZ ===
-app.get("/", (req, res) => {
-  res.status(200).send("🚀 Servidor activo. Webhook WhatsApp Calendar Bot listo ✅");
-});
-
-// ✅ Captura de rutas no encontradas
+// === Captura rutas inexistentes ===
 app.use((req, res) => {
   console.log("⚠️ Ruta no encontrada:", req.url);
   res.status(404).send("Ruta no encontrada: " + req.url);
@@ -327,15 +314,11 @@ app.use((req, res) => {
 
 // === INICIAR SERVIDOR ===
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () =>
-  console.log(`🚀 Servidor corriendo en puerto ${PORT} ✏️🗑️`)
-);
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor corriendo correctamente en puerto ${PORT} ✅`);
+});
 
-app.listen(PORT, () =>
-  console.log(`🚀 Servidor con edición y eliminación de citas activado en puerto ${PORT} ✏️🗑️`)
-);
-
-// === RECORDATORIOS AUTOMÁTICOS (cada 5 minutos) ===
+// === RECORDATORIOS AUTOMÁTICOS (cada 5 min) ===
 let notifiedEvents = new Set();
 cron.schedule("*/5 * * * *", async () => {
   try {
@@ -360,7 +343,7 @@ cron.schedule("*/5 * * * *", async () => {
           minute: "2-digit",
         });
         const msg = `⏰ *Recordatorio:* Tienes "${ev.summary}" hoy a las ${hora} 🗓️`;
-        await sendMessage("51955250357", msg); // Cambia por el número real
+        await sendMessage("51955250357", msg);
         notifiedEvents.add(eventId);
       }
     }
@@ -369,7 +352,7 @@ cron.schedule("*/5 * * * *", async () => {
   }
 });
 
-// === RESUMEN DIARIO AUTOMÁTICO (07:00 a. m. hora Perú) ===
+// === RESUMEN DIARIO (07:00 a.m. hora Perú) ===
 cron.schedule("0 7 * * *", async () => {
   try {
     const now = new Date();
@@ -378,7 +361,6 @@ cron.schedule("0 7 * * *", async () => {
     const end = new Date(now);
     end.setHours(23, 59, 59, 999);
 
-    // Obtener eventos del día
     const events = await calendar.events.list({
       calendarId: CALENDAR_ID,
       timeMin: start.toISOString(),
@@ -387,17 +369,12 @@ cron.schedule("0 7 * * *", async () => {
       orderBy: "startTime",
     });
 
-    // Si no hay citas
     if (!events.data.items.length) {
-      await sendMessage(
-        "51955250357", // tu número real (sin el +)
-        "🌞 *Buenos días!* Hoy no tienes citas programadas. ☕\nAprovecha el día 💪"
-      );
+      await sendMessage("51955250357", "🌞 *Buenos días!* Hoy no tienes citas programadas. ☕");
       console.log("🌅 No hay citas para hoy (mensaje enviado)");
       return;
     }
 
-    // Si hay citas, prepara el mensaje
     let msg = "🌞 *Buenos días!* Hoy tienes las siguientes citas:\n\n";
     events.data.items.forEach((ev, i) => {
       const hora = new Date(ev.start.dateTime || ev.start.date).toLocaleTimeString("es-PE", {
@@ -408,7 +385,6 @@ cron.schedule("0 7 * * *", async () => {
     });
 
     msg += "\n✨ ¡Que tengas un excelente día! ☀️";
-
     await sendMessage("51955250357", msg);
     console.log("🌅 Resumen diario enviado correctamente");
   } catch (err) {
