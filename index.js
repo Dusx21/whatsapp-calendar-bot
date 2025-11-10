@@ -310,10 +310,27 @@ app.get("/", (req, res) => {
 // === INICIAR SERVIDOR ===
 const PORT = process.env.PORT || 10000;
 // Debug temporal
-app.get("*", (req, res) => {
+//app.get("*", (req, res) => {
+  //console.log("⚠️ Ruta no encontrada:", req.url);
+  //res.status(404).send("Ruta no encontrada: " + req.url);
+//});
+// === RUTA RAÍZ ===
+app.get("/", (req, res) => {
+  res.status(200).send("🚀 Servidor activo. Webhook WhatsApp Calendar Bot listo ✅");
+});
+
+// ✅ Captura de rutas no encontradas
+app.use((req, res) => {
   console.log("⚠️ Ruta no encontrada:", req.url);
   res.status(404).send("Ruta no encontrada: " + req.url);
 });
+
+// === INICIAR SERVIDOR ===
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () =>
+  console.log(`🚀 Servidor corriendo en puerto ${PORT} ✏️🗑️`)
+);
+
 app.listen(PORT, () =>
   console.log(`🚀 Servidor con edición y eliminación de citas activado en puerto ${PORT} ✏️🗑️`)
 );
