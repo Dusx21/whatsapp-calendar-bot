@@ -308,7 +308,7 @@ app.get("/", (req, res) => {
 });
 
 // === INICIAR SERVIDOR ===
-const PORT = process.env.PORT || 10000;
+//const PORT = process.env.PORT || 10000;
 // Debug temporal
 //app.get("*", (req, res) => {
   //console.log("⚠️ Ruta no encontrada:", req.url);
