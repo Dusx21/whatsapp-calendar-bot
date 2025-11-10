@@ -309,6 +309,11 @@ app.get("/", (req, res) => {
 
 // === INICIAR SERVIDOR ===
 const PORT = process.env.PORT || 10000;
+// Debug temporal
+app.get("*", (req, res) => {
+  console.log("⚠️ Ruta no encontrada:", req.url);
+  res.status(404).send("Ruta no encontrada: " + req.url);
+});
 app.listen(PORT, () =>
   console.log(`🚀 Servidor con edición y eliminación de citas activado en puerto ${PORT} ✏️🗑️`)
 );
