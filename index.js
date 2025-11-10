@@ -15,10 +15,12 @@ const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const CALENDAR_ID = process.env.CALENDAR_ID;
 
 // === GOOGLE AUTH (corrección clave privada en Render) ===
-let googleCredentials = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+let calendar; // 👈 ahora lo declaramos global
 
 try {
-  // Corrige los saltos de línea si Render los dañó
+  let googleCredentials = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+
+  // Corrige los saltos de línea (\n) para Render
   googleCredentials = googleCredentials.replace(/\\n/g, "\n");
 
   const parsedCredentials = JSON.parse(googleCredentials);
@@ -28,8 +30,8 @@ try {
     scopes: ["https://www.googleapis.com/auth/calendar"],
   });
 
-  global.calendar = google.calendar({ version: "v3", auth });
-  console.log("✅ Credenciales de Google cargadas correctamente");
+  calendar = google.calendar({ version: "v3", auth }); // 👈 ahora calendar queda accesible globalmente
+  console.log("✅ Credenciales de Google cargadas correctamente y calendar inicializado");
 } catch (err) {
   console.error("❌ Error al procesar credenciales de Google:", err.message);
 }
