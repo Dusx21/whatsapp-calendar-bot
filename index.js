@@ -302,9 +302,15 @@ async function sendMessage(to, body) {
   }
 }
 
+// === RUTA RAÍZ (para comprobar que Render está activo) ===
+app.get("/", (req, res) => {
+  res.status(200).send("🚀 Servidor activo. Webhook WhatsApp Calendar Bot listo ✅");
+});
+
 // === INICIAR SERVIDOR ===
-app.listen(3000, () =>
-  console.log("🚀 Servidor con edición y eliminación de citas activado ✏️🗑️")
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () =>
+  console.log(`🚀 Servidor con edición y eliminación de citas activado en puerto ${PORT} ✏️🗑️`)
 );
 
 // === RECORDATORIOS AUTOMÁTICOS (cada 5 minutos) ===
